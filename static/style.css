@@ -1,0 +1,108 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #a7a4a4;
+    background-image: url(https://news.ustc.edu.cn/__local/1/88/E1/F2489CCF74DA7351C0C1B853137_5FA5BD14_21FDD.jpg);
+    background-size: cover;
+    background-position: center center;
+    background-repeat:repeat-x;
+    background-attachment: fixed;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    color: #ffffff;
+    font-size: 40px;
+    font-weight: bold;
+    text-align:center;
+}
+h2 {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: bold;
+    text-align:center;
+}
+
+ul {
+    list-style-type: none;
+    margin-top: -20px;
+    padding: 0;
+    width: 10%;
+    background-color: rgba(202, 207, 209, 0.9);
+    position: fixed;
+    height: 100%;
+    overflow: auto;
+}
+li a {
+    display: block;
+    color: #000;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+li a.active {
+    background-color: #f46a91;
+    color: white;
+}
+
+li a:hover:not(.active) {
+    background-color: #555;
+    color: white;
+}
+
+p {
+    color: #ffffff;
+    font-size: 16px;
+    text-align: center;
+}
+div {
+    color: #ffffff;
+    background-color: rgba(202, 207, 209, 0.1);
+    font-size: 16px;
+    text-align: center;
+    margin-left: 143px;
+}
+input[type=text],input[type=number],input[type=date] ,select {
+    padding: 4px 2px;
+    margin: 10px 0;
+    width: 10%;
+    display: inline-block;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: rgba(202, 207, 209, 0.7);
+}
+button[type=submit] {
+    padding: 4px 10px;
+    background-color: #ffffff54;
+    color: #000000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type=submit]:hover {
+    background-color: #6c9acb;
+}
+
+table {
+    color: #ffffff;
+    background-color: rgba(202, 207, 209, 0.3);
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    text-align: center;
+}
+
+
+th,td{
+    border: 1px solid #ffffff;
+    padding: 10px;
+}
+

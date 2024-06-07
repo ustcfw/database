@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teaching Research Registration</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <script src="/static/search.js"></script>
+<style>   
+    
+</style>    
+</head>
+    
+    <ul>
+        <li><a class="active" href="index">总览</a></li>
+        <li><a href="">登记</a></li>
+        <li><a href="/query">查询</a></li>
+        <li><a href="">导出</a></li>
+    </ul>
+
+<body>
+    <h1>教师教学科研登记系统</h1>
+    
+    <div>
+    <h2> 查询论文/项目/课程 </h2>
+    <form id="search-paper-form">
+        <p>
+        <label for="id">论文编号:</label>
+        <input type="number" id="id" name="id" required>
+        <button type="submit">Search Paper</button>
+    </p>
+    </form>
+    <form id="search-project-form">
+        <p>
+        <label for="id">项目编号:</label>
+        <input type="number" id="id" name="id" required>
+        <button type="submit">Search Project</button>
+    </p>
+    </form>
+    <form id="search-course-form">
+        <p>
+        <label for="id">课程编号:</label>
+        <input type="number" id="id" name="id" required>
+        <button type="submit">Search Course</button>
+    </p>
+    </form>
+    
+    <hr>
+    <table id="paper-table"></table>
+
+    <table id="project-table"></table>
+
+    <table id="course-table"></table>
+
+    
+
+
+
+    
+
+
+   
+</div>
+</body>
+</html>
