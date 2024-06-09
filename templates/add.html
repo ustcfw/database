@@ -22,50 +22,7 @@
     
     <div>
         <h1>教师教学科研登记系统</h1>
-    <form id="add-teacher-form">
-        <p>
-        <label for="name">姓名:</label>
-        <input type="text" id="name" name="name" required>
-        <label for="gender">性别:</label>
-        <select id="gender" name="gender" required>
-            <option value="1">Male</option>
-            <option value="2">Female</option>
-        </select>
-        <label for="title">职称:</label>
-        <select id="title" name="title" required>
-            <option value="1">Postdoc</option>
-            <option value="2">Assistant</option>
-            <option value="3">Lecturer</option>
-            <option value="4">Associate Professor</option>
-            <option value="5">Special professor</option>
-            <option value="6">Professor</option>
-            <option value="7">Research Assistant</option>
-            <option value="8">Special associate Researcher</option>
-            <option value="9">Associate Researcher</option>
-            <option value="10">Special Researcher</option>
-            <option value="11">Researcher</option>
-        </select>
-        <button type="submit">Add Teacher</button>
-    </p>
-    </form>
-    <hr>
-    <form id="add-course-form">
-        <p>
-        <label for="id">课程编号:</label>
-        <input type="number" id="id" name="id" required>
-        <label for="name">课程名称:</label>
-        <input type="text" id="name" name="name" required>
-        <label for="hours">学时:</label>
-        <input type="number" id="hours" name="hours" required>
-        <label for="type">类型:</label>
-        <select id="type" name="type" required>
-            <option value="1">本科生课程</option>
-            <option value="2">研究生课程</option>
-        </select>
-        <button type="submit">Add Course</button>
-    </p>
-    <hr>
-    </form>
+    
     <h2>论文登记</h2>
     <form id="add-paper-form">
         <p>
@@ -107,6 +64,7 @@
     </form>
 
     <hr>
+    <h2>项目登记</h2>
     <form id="add-project-form">
         <p>
         <label for="id">项目编号:</label>
@@ -117,7 +75,7 @@
         <input type="text" id="source" name="source" required>
         <label for="fund">经费:</label>
         <input type="number" id="fund" name="fund" required>
-        <label for="startdate">开始日期:</label>
+        <label for="startdate">开始日期（年份）:</label>
         <input type="number" id="startdate" name="startdate" required>
         <label for="enddate">结束日期:</label>
         <input type="number" id="enddate" name="enddate" required>
@@ -130,18 +88,6 @@
             <option value="5">其他</option>
         </select>
         <button type="submit">Add Project</button>
-    </p>
-    </form>
-
-
-
-    <h2>论文删除</h2>
-    
-    <form id="delete-paper-form">
-        <p>
-        <label for="id">论文编号:</label>
-        <input type="number" id="id" name="id" required>
-        <button type="submit">Delete Paper</button>
     </p>
     </form>
 

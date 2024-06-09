@@ -1,50 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('add-teacher-form');/*add-course-form*/
-    const form2 = document.getElementById('add-course-form');
+    
     const addpaper = document.getElementById('add-paper-form');
     const addproject = document.getElementById('add-project-form');
-    const deletepaper = document.getElementById('delete-paper-form');
-    const teachersList = document.getElementById('teachers-list');
-    const coursesList = document.getElementById('courses-list');
-    const teachertable = document.getElementById('teacher-table');
-    const coursetable = document.getElementById('course-table');
-    const papertable = document.getElementById('paper-table');
-    const projecttable = document.getElementById('project-table');
+    
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(form);
-
-        fetch('/add_teacher', {
-            method: 'POST',
-            body: formData
-        })
-        
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            fetchTeachersintable();
-        })
-        .catch(error => console.error('Error:', error));
-        
-    });
-    form2.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(form2);
-
-        fetch('/add_courses', {
-            method: 'POST',
-            body: formData
-        })
-        
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            fetchCourseintable();
-        })
-        .catch(error => console.error('Error:', error));
-        
-    });
+   
     addpaper.addEventListener('submit', function(event) {
         event.preventDefault();
         const formData = new FormData(addpaper);
@@ -62,23 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error:', error));
         
     });
-    deletepaper.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(deletepaper);
-
-        fetch('/delete_papers', {
-            method: 'POST',
-            body: formData
-        })
-
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            fetchPaper();
-        })
-        .catch(error => console.error('Error:', error));
-
-    });
+    
 
     addproject.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -100,19 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
 
-    function fetchTeachers() {
-        fetch('/get_teachers')
-        .then(response => response.json())
-        .then(data => {
-            teachersList.innerHTML = '';
-            data.forEach(teacher => {
-                const li = document.createElement('li');
-                li.textContent = `Name: ${teacher[1]}, Gender: ${teacher[2] === 1 ? 'Male' : 'Female'}, Title: ${teacher[3]}`;
-                teachersList.appendChild(li);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-    }
+   
     function transfortitle(title){
         switch (title) {
             case 1:
@@ -178,19 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     
-    function fetchCourses() {
-        fetch('/get_courses')
-        .then(response => response.json())
-        .then(data => {
-            coursesList.innerHTML = '';         
-            data.forEach(course => {
-                const li = document.createElement('li');
-                li.textContent = `ID: ${course[0]}, Name: ${course[1]  }, Hours: ${course[2]}, Type: ${course[3]===1 ? '本科生课程' : '研究生课程'}`;
-                coursesList.appendChild(li);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-    }
     function fetchCourseintable(){
         fetch('/get_courses')
         .then(response => response.json())
@@ -245,17 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    //fetchTeachers();
-    fetchTeachersintable();
-
-    //fetchCourses();
-    fetchCourseintable();
-
-    
-
-    fetchPaper();
-    
-    fetchProject();
     
     
 });

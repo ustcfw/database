@@ -121,6 +121,7 @@ def add_projects():
     return jsonify({'message': 'Project added successfully'}), 200
 
 
+
 @app.route('/delete_papers', methods=['POST'])
 def delete_papers():
     id1 = int(request.form['id'])
@@ -143,10 +144,19 @@ def delete_papers():
 @app.route('/delete_projects', methods=['POST'])
 def delete_projects():
     id1 = int(request.form['id'])
-    cur = con.cursor()
-    cur.execute("DELETE FROM projects WHERE id = %s", [id1])
-    con.commit()
-    cur.close()
+    
+    try:
+        cur = con.cursor()
+        cur.execute("DELETE FROM projects WHERE id = %s", [id1])
+        con.commit()
+        message = 'Project deleted successfully'
+        status_code = 200
+    except MySQLdb.ProgrammingError as e:
+        message = 'fail to delete project:{}'.format(e.args[1])
+        status_code = 200
+        return jsonify({'message': message}), 200
+    finally:
+        cur.close()
     return jsonify({'message': 'Project deleted successfully'}), 200
 
 @app.route('/delete_courses', methods=['POST'])
@@ -208,6 +218,8 @@ def get_teachers():
     cur = con.cursor()
     cur.execute("SELECT * FROM teachers")
     rows = cur.fetchall()
+    while cur.nextset():
+        pass
     cur.close()
     return jsonify(rows), 200
 
@@ -217,6 +229,8 @@ def get_courses():
     cur = con.cursor()
     cur.execute("SELECT * FROM courses")
     rows = cur.fetchall()
+    while cur.nextset():
+        pass
     cur.close()
     return jsonify(rows), 200
 @app.route('/get_papers', methods=['GET'])
@@ -225,6 +239,8 @@ def get_papers():
     cur = con.cursor()
     cur.execute("SELECT * FROM papers")
     rows = cur.fetchall()
+    while cur.nextset():
+        pass
     cur.close()
     return jsonify(rows), 200
 
@@ -234,6 +250,8 @@ def get_projects():
     cur = con.cursor()
     cur.execute("SELECT * FROM projects")
     rows = cur.fetchall()
+    while cur.nextset():
+        pass
     cur.close()
     return jsonify(rows), 200
 
@@ -456,7 +474,7 @@ def deletePublishedPaper():
         return jsonify({'message': message}), 200
     finally:
         cur.close()
-        
+
     return jsonify({'message': 'Published paper deleted successfully'}), 200
 
 @app.route('/deleteUndertakenProject', methods=['POST'])

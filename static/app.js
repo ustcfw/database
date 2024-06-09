@@ -2,8 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('add-teacher-form');/*add-course-form*/
     const form2 = document.getElementById('add-course-form');
     const addpaper = document.getElementById('add-paper-form');
-    const addproject = document.getElementById('add-project-form');
     const deletepaper = document.getElementById('delete-paper-form');
+    const deleteproject = document.getElementById('delete-project-form');
     const teachersList = document.getElementById('teachers-list');
     const coursesList = document.getElementById('courses-list');
     const teachertable = document.getElementById('teacher-table');
@@ -45,23 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error:', error));
         
     });
-    addpaper.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(addpaper);
-
-        fetch('/add_papers', {
-            method: 'POST',
-            body: formData
-        })
-        
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            fetchPaper();
-        })
-        .catch(error => console.error('Error:', error));
-        
-    });
+   
     deletepaper.addEventListener('submit', function(event) {
         event.preventDefault();
         const formData = new FormData(deletepaper);
@@ -80,6 +64,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     });
 
+    deleteproject.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(deleteproject);
+
+        fetch('/delete_projects', {
+            method: 'POST',
+            body: formData
+        })
+
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            fetchProject();
+        })
+        .catch(error => console.error('Error:', error));
+
+    });
     
 
 
@@ -257,18 +258,35 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error:', error));
     }
 
-
-    //fetchTeachers();
     fetchTeachersintable();
 
-    //fetchCourses();
     fetchCourseintable();
-
-    
 
     fetchPaper();
 
     fetchProject();
     
+    document.getElementById('button').addEventListener('click', function() {
+        fetchTeachersintable();
+
+        fetchCourseintable();
+
+        fetchPaper();
+
+        fetchProject();
+
+    });
+    document.getElementById('coursebutton').addEventListener('click', function() {
+        fetchCourseintable();
+
+    });
+    document.getElementById('paperbutton').addEventListener('click', function() {
+        fetchPaper();
+
+    });
+    document.getElementById('projectbutton').addEventListener('click', function() {
+        fetchProject();
+
+    });
     
 });

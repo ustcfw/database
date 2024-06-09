@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(response => response.json())
         .then(data => {
+            alert(data.message);
             const event = new Event('submit');
             form.dispatchEvent(event);
         })
