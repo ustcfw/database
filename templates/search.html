@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teaching Research Registration</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <script src="/static/search.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vxe-table-plugin-export-pdf/fonts/source-han-sans-normal.js"></script>
+    <!--pdf下载 -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+
+
+<style>   
+    
+</style>    
+</head>
+
+    <ul>
+        <li><a href="index">总览</a></li>
+        <li><a href="add">登记</a></li>
+        <li><a href="query">查询</a></li>
+        <li><a class="active" href="search">导出</a></li>
+    </ul>
+<body id='layout'>
+    
+    
+    <div >
+        <h1>教师教学科研登记系统</h1>
+        <form id="queryForm">
+            <p>
+            <label for="teacherId">教师工号:</label>
+            <input type="text" id="teacherId" name="teacherId" required>
+            
+            <label for="yearRange">年份范围 (例如: 2022-2023):</label>
+            <input type="number" id="Range1" name="Range1"  required>--
+            <input type="number" id="Range2" name="Range2"  required>
+            
+            <button type="submit">查询</button>
+            <button type="button" onclick="exportData()">导出</button>
+            <button type="button" onclick="print()">打印</button>
+        </p>
+        </form>
+        <form id="updatePaper">
+            <p>
+            <label for="teacherId">教师工号:</label>
+            <input type="text" id="teacherId" name="teacherId" required>
+            <label for="paperId">论文编号:</label>
+            <input type="number" id="paperId" name="paperId" required>
+            <label for="ranking">排名:</label>
+            <input type="number" id="ranking" name="ranking" required>
+            <label for="is_corresponding_author">是否通讯作者:</label>
+            <select id="is_corresponding_author" name="is_corresponding_author" required>
+                <option value="1">是</option>
+                <option value="0">否</option>
+            </select>
+            <button type="submit">更新</button>
+            <button type="button" id="addPaperButton">添加</button>
+        </p>
+        </form>
+        <form id="updateProject">
+            <p>
+            <label for="teacherId">教师工号:</label>
+            <input type="text" id="teacherId" name="teacherId" required>
+            <label for="projectId">项目编号:</label>
+            <input type="number" id="projectId" name="projectId" required>
+            <label for="ranking">排名:</label>
+            <input type="number" id="ranking" name="ranking" required>
+            <lable for="funding">经费:</lable>
+            <input type="number" id="funding" name="funding" required>
+            <button type="submit">更新</button>
+            <button type="button" id="addProjectButton">添加</button>
+        </p>
+        </form>
+        <form id="updateCourse">
+            <p>
+            <label for="teacherId">教师工号:</label>
+            <input type="text" id="teacherId" name="teacherId" required>
+            <label for="courseId">课程编号:</label>
+            <input type="number" id="courseId" name="courseId" required>
+            <label for="semester">学期:</label>
+            <select id="semester" name="semester" required>
+                <option value="1">春季</option>
+                <option value="2">夏季</option>
+                <option value="3">秋季</option>
+            </select>
+            <label for="year">年份:</label>
+            <input type="number" id="year" name="year" required>
+            <label for="hours">主讲学时:</label>
+            <input type="number" id="hours" name="hours" required>
+            <button type="submit">更新</button>
+            <button type="button" id="addCourseButton">添加</button>
+        </p>
+        </form>
+        <hr>
+          
+        <p id="results"></p>
+          
+    </div>
+    <script>
+        function exportData() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+                     
+            doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
+            doc.setFont('SourceHanSans-Normal');
+            const results = document.getElementById('results').innerText; 
+            const lines = doc.splitTextToSize(results, 60); // 180是每行文本的最大宽度，你可以根据需要调整
+            doc.text(lines, 10, 10); // 使用处理过的文本行
+            doc.setFontSize(12);
+            doc.save('exported-results.pdf');
+        }
+        function print(){
+            const element = document.getElementById("layout");
+            const options = {
+                dpi: 192,  //dpi属性的值为192，表示图像的分辨率
+                scale: 1, //scale属性的值为2，表示图像的缩放比例。
+                backgroundColor: "#F1F6FE"  //backgroundColor属性的值为"#F1F6FE"，表示图像的背景颜色。
+            };
+            // 将元素转换为canvas对象
+            html2canvas(element, options).then((canvas) => {
+                var contentWidth = canvas.width;   //获取Canvas(上面元素id 'layout-wrapper')对象的宽度
+                var contentHeight = canvas.height; //获取Canvas(上面元素id 'layout-wrapper')对象的高度
+                // 创建jsPDF对象	
+                jsPDF = jspdf.jsPDF;  //导入jsPDF库，用于创建PDF文件
+                const pdf = new jsPDF('1', 'pt', [contentWidth, contentHeight]); //创建一个新的PDF对象，参数包括页面格式（'1'表示A4纸张）、单位（'pt'）和页面尺寸（[contentWidth, contentHeight]）
+                var pageData = canvas.toDataURL('image/jpeg', 1.0);  //将Canvas对象转换为JPEG格式的数据，并将其存储在pageData变量中。1.0表示图片质量
+                pdf.addImage(pageData, 'JPEG', 0,0, contentWidth, contentHeight);  //将JPEG格式的图片添加到PDF文件中，图片的左上角坐标为(0, 0)，宽度为contentWidth，高度为contentHeight
+                pdf.save("test.pdf");
+            });
+        }
+        </script>
+</body>
+</html>

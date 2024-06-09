@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Teaching Research Registration</title>
+    <link rel="stylesheet" href="../static/style.css">
+    <script src="/static/add.js"></script>
+<style>   
+    
+</style>    
+</head>
+
+    <ul>
+        <li><a href="index">总览</a></li>
+        <li><a class="active" href="add">登记</a></li>
+        <li><a href="query">查询</a></li>
+        <li><a href="search">导出</a></li>
+    </ul>
+<body>
+    
+    
+    <div>
+        <h1>教师教学科研登记系统</h1>
+    <form id="add-teacher-form">
+        <p>
+        <label for="name">姓名:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="gender">性别:</label>
+        <select id="gender" name="gender" required>
+            <option value="1">Male</option>
+            <option value="2">Female</option>
+        </select>
+        <label for="title">职称:</label>
+        <select id="title" name="title" required>
+            <option value="1">Postdoc</option>
+            <option value="2">Assistant</option>
+            <option value="3">Lecturer</option>
+            <option value="4">Associate Professor</option>
+            <option value="5">Special professor</option>
+            <option value="6">Professor</option>
+            <option value="7">Research Assistant</option>
+            <option value="8">Special associate Researcher</option>
+            <option value="9">Associate Researcher</option>
+            <option value="10">Special Researcher</option>
+            <option value="11">Researcher</option>
+        </select>
+        <button type="submit">Add Teacher</button>
+    </p>
+    </form>
+    <hr>
+    <form id="add-course-form">
+        <p>
+        <label for="id">课程编号:</label>
+        <input type="number" id="id" name="id" required>
+        <label for="name">课程名称:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="hours">学时:</label>
+        <input type="number" id="hours" name="hours" required>
+        <label for="type">类型:</label>
+        <select id="type" name="type" required>
+            <option value="1">本科生课程</option>
+            <option value="2">研究生课程</option>
+        </select>
+        <button type="submit">Add Course</button>
+    </p>
+    <hr>
+    </form>
+    <h2>论文登记</h2>
+    <form id="add-paper-form">
+        <p>
+        <label for="id">论文编号:</label>
+        <input type="number" id="id" name="id"  required>
+        <label for="name">论文名称:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="authorid">作者编号:</label>
+        <input type="number" id="authorid" name="authorid" required>
+        <label for="publishdate">发表日期:</label>
+        <input type="date" id="publishdate" name="publishdate" required>
+        <label for="type">论文类型:</label>
+        <select id="type" name="type" required>
+            <option value="1">full paper</option>
+            <option value="2">short paper</option>
+            <option value="3">poster paper</option>
+            <option value="4">demo paper</option>
+        </select>
+        <label for="source" id="source-label">发表源:</label>
+        <input type="text" id="source" name="source">
+        <label for="level" id="level-label">期刊等级:</label>
+        <select id="level" name="level">
+            <option value="1">CCF-A</option>
+            <option value="2">CCF-B</option>
+            <option value="3">CCF-C</option>
+            <option value="4">中文CCF-A</option>
+            <option value="5">中文CCF-B</option>
+            <option value="6">无级别</option>
+        </select>
+        <label for="rank" >作者排名:</label>
+        <input type="number" id="rank" name="rank">
+        <label for="is_corresponding_author">是否通讯作者:</label>
+        <select id="is_corresponding_author" name="is_corresponding_author">
+            <option value="1">是</option>
+            <option value="0">否</option>
+        </select>
+        <button type="submit">Add Paper</button>
+    </p>
+    </form>
+
+    <hr>
+    <form id="add-project-form">
+        <p>
+        <label for="id">项目编号:</label>
+        <input type="number" id="id" name="id" required>
+        <label for="name">项目名称:</label>
+        <input type="text" id="name" name="name" required>
+        <label for="source">项目来源:</label>
+        <input type="text" id="source" name="source" required>
+        <label for="fund">经费:</label>
+        <input type="number" id="fund" name="fund" required>
+        <label for="startdate">开始日期:</label>
+        <input type="number" id="startdate" name="startdate" required>
+        <label for="enddate">结束日期:</label>
+        <input type="number" id="enddate" name="enddate" required>
+        <label for="type">项目类型:</label>
+        <select id="type" name="type" required>
+            <option value="1">国家级</option>
+            <option value="2">省部级</option>
+            <option value="3">市厅级</option>
+            <option value="4">企业合作项目</option>
+            <option value="5">其他</option>
+        </select>
+        <button type="submit">Add Project</button>
+    </p>
+    </form>
+
+
+
+    <h2>论文删除</h2>
+    
+    <form id="delete-paper-form">
+        <p>
+        <label for="id">论文编号:</label>
+        <input type="number" id="id" name="id" required>
+        <button type="submit">Delete Paper</button>
+    </p>
+    </form>
+
+    <hr>
+
+    </div>
+
+</body>

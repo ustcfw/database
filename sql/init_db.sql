@@ -28,7 +28,7 @@ CREATE TABLE published_papers (
     ranking INT NOT NULL,
     is_corresponding_author BOOLEAN NOT NULL,
     paper_id INT,
-    PRIMARY KEY (ranking, paper_id),
+    PRIMARY KEY (teacher_id, paper_id),
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES teachers(id)
 );
@@ -51,8 +51,8 @@ CREATE TABLE undertaken_projects (
     ranking INT NOT NULL,
     funding FLOAT NOT NULL,
     project_id INT NOT NULL,
-    PRIMARY KEY (ranking, project_id),
-    FOREIGN KEY (project_id) REFERENCES projects(id),
+    PRIMARY KEY (teacher_id, project_id),
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES teachers(id)
 );
 ALTER TABLE undertaken_projects DROP FOREIGN KEY undertaken_projects_ibfk_1;
@@ -77,8 +77,8 @@ CREATE TABLE main_courses (
     semester INT NOT NULL,
     hours INT NOT NULL,
     course_id INT NOT NULL,
-    PRIMARY KEY (year, semester, course_id),
-    FOREIGN KEY (course_id) REFERENCES courses(id),
+    PRIMARY KEY (teacher_id, course_id),
+    FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES teachers(id)
 );
 
@@ -150,7 +150,308 @@ BEGIN
     DELETE FROM papers WHERE id = paperid;
     
 END;
+
+DELIMITER $$
+
+CREATE PROCEDURE InsertPublishedPaper(
+    IN _teacher_id INT,
+    IN _ranking INT,
+    IN _is_corresponding_author BOOLEAN,
+    IN _paper_id INT
+)
+BEGIN
+    -- 检查是否已有通讯作者
+    IF EXISTS (
+        SELECT 1
+        FROM published_papers
+        WHERE paper_id = _paper_id AND is_corresponding_author = TRUE AND _is_corresponding_author = TRUE
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'This paper already has a corresponding author.';
+    END IF;
+
+    -- 检查作者排名是否重复
+    IF EXISTS (
+        SELECT 1
+        FROM published_papers
+        WHERE paper_id = _paper_id AND ranking = _ranking
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'This ranking for the paper already exists.';
+    END IF;
+
+    -- 插入记录
+    INSERT INTO published_papers(teacher_id, ranking, is_corresponding_author, paper_id)
+    VALUES (_teacher_id, _ranking, _is_corresponding_author, _paper_id);
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE UpdatePublishedPaper(
+    IN _teacher_id INT,
+    IN _ranking INT,
+    IN _is_corresponding_author BOOLEAN,
+    IN _paper_id INT
+)
+BEGIN
+    -- 检查是否已有通讯作者
+    IF _is_corresponding_author = TRUE AND EXISTS (
+        SELECT 1
+        FROM published_papers
+        WHERE paper_id = _paper_id AND is_corresponding_author = TRUE AND teacher_id <> _teacher_id
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Another corresponding author exists for this paper.';
+    END IF;
+
+    -- 检查作者排名是否重复
+    IF EXISTS (
+        SELECT 1
+        FROM published_papers
+        WHERE paper_id = _paper_id AND ranking = _ranking AND teacher_id <> _teacher_id
+    ) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'This ranking for the paper already exists with a different author.';
+    END IF;
+
+    -- 更新记录
+    UPDATE published_papers
+    SET ranking = _ranking, is_corresponding_author = _is_corresponding_author
+    WHERE teacher_id = _teacher_id AND paper_id = _paper_id;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE DeletePublishedPaper(
+    IN _teacher_id INT,
+    IN _paper_id INT
+)
+BEGIN
+    -- 删除记录
+    DELETE FROM published_papers
+    WHERE teacher_id = _teacher_id AND paper_id = _paper_id;
+END$$
+
+DELIMITER ;
+
+CALL `InsertPublishedPaper`(1, 1, TRUE, 2);
+CALL `UpdatePublishedPaper`(1, 2, FALSE, 2);
+CALL `DeletePublishedPaper`(1, 2);
+
+DROP TRIGGER IF EXISTS update_total_funding;
+DROP TRIGGER IF EXISTS after_insert_undertaken_projects;
+DROP TRIGGER IF EXISTS after_delete_undertaken_projects;
+DROP TRIGGER IF EXISTS after_update_undertaken_projects;
+
+DELIMITER $$
+
+-- 插入触发器，直接更新total_funding
+CREATE TRIGGER after_insert_undertaken_projects AFTER INSERT ON undertaken_projects
+FOR EACH ROW
+BEGIN
+    UPDATE projects
+    SET total_funding = (SELECT SUM(funding) FROM undertaken_projects WHERE project_id = NEW.project_id)
+    WHERE id = NEW.project_id;
+END$$
+
+-- 更新触发器，直接更新total_funding
+CREATE TRIGGER after_update_undertaken_projects AFTER UPDATE ON undertaken_projects
+FOR EACH ROW
+BEGIN
+    UPDATE projects
+    SET total_funding = (SELECT SUM(funding) FROM undertaken_projects WHERE project_id = NEW.project_id)
+    WHERE id = NEW.project_id;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+DELIMITER $$
+
+CREATE TRIGGER after_delete_undertaken_projects
+AFTER DELETE ON undertaken_projects
+FOR EACH ROW
+BEGIN
+    UPDATE projects
+    SET total_funding = COALESCE(
+        (SELECT SUM(funding) FROM undertaken_projects WHERE project_id = OLD.project_id),
+        0
+    )
+    WHERE id = OLD.project_id;
+END$$
+
+DELIMITER ;
+
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS RegisterTeacherProject;
+DELIMITER $$
+
+CREATE PROCEDURE RegisterTeacherProject(IN teacher_id INT, IN projectid INT, IN rank1 INT, IN fund FLOAT)
+BEGIN
+    -- 首先检查项目是否存在
+    DECLARE project_exists INT DEFAULT 0;
+    DECLARE rank_exists INT DEFAULT 0;
+    SELECT COUNT(*) INTO project_exists
+    FROM projects
+    WHERE id = projectid;
+
+    IF project_exists = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Project does not exist.';
+    ELSE
+        -- 检查是否存在相同项目中的相同排名
+        
+        SELECT COUNT(*) INTO rank_exists
+        FROM undertaken_projects
+        WHERE project_id = projectid AND ranking = rank1;
+
+        IF rank_exists > 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Rank already exists for this project.';
+        ELSE
+            -- 插入新的承担项目记录
+            INSERT INTO undertaken_projects (teacher_id, project_id, ranking, funding)
+            VALUES (teacher_id, projectid, rank1, fund);
+        END IF;
+    END IF;
+END$$
+
+DELIMITER ;
+DELIMITER $$
+
+CREATE PROCEDURE UpdateUndertakenProject(IN teacherid INT, IN projectid INT, IN rank1 INT, IN fund FLOAT)
+BEGIN
+    DECLARE project_exists INT DEFAULT 0;
+    DECLARE rank_exists INT DEFAULT 0;
+
+    SELECT COUNT(*) INTO project_exists FROM projects WHERE id = projectid;
+    IF project_exists = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Project does not exist.';
+    ELSE
+        SELECT COUNT(*) INTO rank_exists FROM undertaken_projects WHERE project_id = projectid AND ranking = rank1 AND teacher_id != teacherid;
+        IF rank_exists > 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Rank already exists for this project with a different teacher.';
+        ELSE
+            UPDATE undertaken_projects SET ranking = rank1, funding = fund WHERE teacher_id = teacherid AND project_id = projectid;
+        END IF;
+    END IF;
+END$$
+
+DELIMITER ;
+DELIMITER $$
+
+CREATE PROCEDURE DeleteUndertakenProject(IN teacherid INT, IN projectid INT)
+BEGIN
+    DECLARE project_exists INT DEFAULT 0;
+
+    SELECT COUNT(*) INTO project_exists FROM undertaken_projects WHERE teacher_id = teacherid AND project_id = projectid;
+    IF project_exists = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Project undertaking does not exist for this teacher.';
+    ELSE
+        DELETE FROM undertaken_projects WHERE teacher_id = teacherid AND project_id = projectid;
+    END IF;
+END$$
+
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS trg_maincourse_insert;
+DROP TRIGGER IF EXISTS trg_maincourse_update;
+DROP TRIGGER IF EXISTS trg_maincourse_delete;
+-- INSERT 触发器
+CREATE TRIGGER trg_maincourse_insert
+AFTER INSERT ON main_courses
+FOR EACH ROW
+BEGIN
+    UPDATE courses c
+    JOIN (
+        SELECT course_id, year, semester, SUM(hours) AS total_hours
+        FROM main_courses
+        WHERE course_id = NEW.course_id AND year = NEW.year AND semester = NEW.semester
+        GROUP BY course_id, year, semester
+    ) mc ON c.id = mc.course_id
+    SET c.hours = mc.total_hours;
+END;
+
+-- UPDATE 触发器
+CREATE TRIGGER trg_maincourse_update
+AFTER UPDATE ON main_courses
+FOR EACH ROW
+BEGIN
+    UPDATE courses c
+    JOIN (
+        SELECT course_id, year, semester, SUM(hours) AS total_hours
+        FROM main_courses
+        WHERE course_id = NEW.course_id AND year = NEW.year AND semester = NEW.semester
+        GROUP BY course_id, year, semester
+    ) mc ON c.id = mc.course_id
+    SET c.hours = mc.total_hours;
+END;
+
+-- DELETE 触发器
+CREATE TRIGGER trg_maincourse_delete
+AFTER DELETE ON main_courses
+FOR EACH ROW
+BEGIN
+    UPDATE courses c
+    JOIN (
+        SELECT course_id, year, semester, SUM(hours) AS total_hours
+        FROM main_courses
+        WHERE course_id = OLD.course_id AND year = OLD.year AND semester = OLD.semester
+        GROUP BY course_id, year, semester
+    ) mc ON c.id = mc.course_id
+    SET c.hours = mc.total_hours;
+END;
+-- 添加课程的过程
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS AddMainCourse;
+CREATE PROCEDURE AddMainCourse(IN _course_id INT, IN _year INT, IN _semester INT, IN _hours INT, IN _teacher_id INT)
+BEGIN
+    DECLARE course_exists INT DEFAULT 0;
+    SELECT COUNT(*) INTO course_exists FROM courses WHERE id = _course_id;
+
+    IF course_exists > 0 THEN
+        INSERT INTO main_courses (course_id, year, semester, hours, teacher_id) VALUES (_course_id, _year, _semester, _hours, _teacher_id);
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Course does not exist.';
+    END IF;
+END$$
+DELIMITER ;
+DROP PROCEDURE IF EXISTS UpdateMainCourse;
+-- 修改课程的过程
+DELIMITER $$
+CREATE PROCEDURE UpdateMainCourse(IN _course_id INT, IN _year INT, IN _semester INT, IN _new_hours INT, IN _teacher_id INT)
+BEGIN
+    IF EXISTS (SELECT 1 FROM courses WHERE id = _course_id) THEN
+        UPDATE main_courses SET hours = _new_hours , year = _year , semester = _semester WHERE course_id = _course_id  AND teacher_id = _teacher_id;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Course does not exist.';
+    END IF;
+END$$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS DeleteMainCourse;
+-- 删除课程的过程
+DELIMITER $$
+CREATE PROCEDURE DeleteMainCourse(IN _course_id INT,  IN _teacher_id INT)
+BEGIN
+    IF EXISTS (SELECT 1 FROM main_courses WHERE course_id = _course_id AND teacher_id = _teacher_id) THEN
+        DELETE FROM main_courses WHERE course_id = _course_id  AND teacher_id = _teacher_id;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Course or record does not exist.';
+    END IF;
+END$$
+DELIMITER ;
+
 CALL `DeletePaper`(3);
+CALL `RegisterTeacherProject`(1, 2, 1, 50000.0);
+CALL `DeleteUndertakenProject`(1, 2);
+CALL `UpdateUndertakenProject`(2, 2, 1, 70000.0);
+
+CALL `AddMainCourse`(2, 2022, 1, 24, 1);
+CALL `UpdateMainCourse`(2, 2022, 2, 24, 1);
+CALL `DeleteMainCourse`(2, 2022, 2, 1);
 ALTER TABLE teachers AUTO_INCREMENT =5;
 INSERT INTO teachers (id, name, gender, title) VALUES ('1', 'Alice', 2, 6);
 INSERT INTO teachers (id, name, gender, title) VALUES ('2', 'Bob', 1, 4);
@@ -162,7 +463,7 @@ INSERT INTO papers (id,title, source, publication_year, type, level) VALUES (2,'
 INSERT INTO published_papers (ranking, is_corresponding_author, paper_id,teacher_id) VALUES (1, TRUE, 1, 1);
 INSERT INTO published_papers (ranking, is_corresponding_author, paper_id,teacher_id) VALUES (2, FALSE, 2, 2);
 INSERT INTO projects (id, title, source, type, total_funding, start_year, end_year) VALUES ('1', 'AI Project', 'National Science Foundation', 1, 50000.0, 2021, 2023);
-INSERT INTO undertaken_projects (ranking, funding, project_id,teacher_id) VALUES (1, 50000.0, '001', 1);
+INSERT INTO undertaken_projects (ranking, funding, project_id,teacher_id) VALUES (1, 40000.0, '001', 1);
 
 INSERT INTO courses (id, name, hours, type) VALUES ('001', 'Intro to CS', 48, 1);
 INSERT INTO courses (id, name, hours, type) VALUES ('002', 'Database Management', 36, 2);
