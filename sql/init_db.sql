@@ -306,12 +306,18 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS UpdateUndertakenProject;
 DELIMITER $$
+
+
 
 CREATE PROCEDURE UpdateUndertakenProject(IN teacherid INT, IN projectid INT, IN rank1 INT, IN fund FLOAT)
 BEGIN
     DECLARE project_exists INT DEFAULT 0;
     DECLARE rank_exists INT DEFAULT 0;
+    DECLARE total_fund FLOAT DEFAULT 0;
+    DECLARE project_funding FLOAT DEFAULT 0;
 
     SELECT COUNT(*) INTO project_exists FROM projects WHERE id = projectid;
     IF project_exists = 0 THEN
@@ -321,12 +327,24 @@ BEGIN
         IF rank_exists > 0 THEN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Rank already exists for this project with a different teacher.';
         ELSE
-            UPDATE undertaken_projects SET ranking = rank1, funding = fund WHERE teacher_id = teacherid AND project_id = projectid;
+            -- 计算指定项目的所有教师经费总和，假设当前教师的经费已更新
+            SELECT SUM(funding) - COALESCE((SELECT funding FROM undertaken_projects WHERE teacher_id = teacherid AND project_id = projectid), 0) + fund INTO total_fund FROM undertaken_projects WHERE project_id = projectid;
+            -- 获取项目的总经费
+            SELECT total_funding INTO project_funding FROM projects WHERE id = projectid;
+            
+            -- 检查项目总经费是否等于所有教师的经费总和
+            IF total_fund = project_funding THEN
+                -- 如果相等，更新当前教师的经费和排名
+                UPDATE undertaken_projects SET ranking = rank1, funding = fund WHERE teacher_id = teacherid AND project_id = projectid;
+            ELSE
+                SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Total funding does not match the sum of all teachers'' funding for this project.';
+            END IF;
         END IF;
     END IF;
 END$$
 
 DELIMITER ;
+
 DELIMITER $$
 
 CREATE PROCEDURE DeleteUndertakenProject(IN teacherid INT, IN projectid INT)
@@ -361,6 +379,8 @@ BEGIN
     SET c.hours = mc.total_hours;
 END;
 
+
+DROP TRIGGER IF EXISTS trg_maincourse_update;
 -- UPDATE 触发器
 CREATE TRIGGER trg_maincourse_update
 AFTER UPDATE ON main_courses
@@ -411,8 +431,27 @@ DROP PROCEDURE IF EXISTS UpdateMainCourse;
 DELIMITER $$
 CREATE PROCEDURE UpdateMainCourse(IN _course_id INT, IN _year INT, IN _semester INT, IN _new_hours INT, IN _teacher_id INT)
 BEGIN
+    DECLARE total_hours INT DEFAULT 0;
+    DECLARE course_hours INT DEFAULT 0;
+    DECLARE adjusted_total_hours INT DEFAULT 0;
+
     IF EXISTS (SELECT 1 FROM courses WHERE id = _course_id) THEN
-        UPDATE main_courses SET hours = _new_hours , year = _year , semester = _semester WHERE course_id = _course_id  AND teacher_id = _teacher_id;
+        
+        
+        -- 计算相同学年学期的课程各教师主讲学时总和
+        SELECT SUM(hours) INTO total_hours FROM main_courses WHERE course_id = _course_id AND year = _year AND semester = _semester  AND teacher_id != _teacher_id;
+        
+        -- 获取课程的总学时
+        SELECT hours INTO course_hours FROM courses WHERE id = _course_id;
+
+        SET adjusted_total_hours = total_hours + _new_hours;
+        
+        -- 检查课程总学时是否等于各教师主讲学时总和
+        IF adjusted_total_hours != course_hours THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Total teaching hours do not match the course''s total hours for the given year and semester.';
+        ELSE
+            UPDATE main_courses SET hours = _new_hours, year = _year, semester = _semester WHERE course_id = _course_id AND teacher_id = _teacher_id;
+        END IF;
     ELSE
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Course does not exist.';
     END IF;
