@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const addpaper = document.getElementById('add-paper-form');
     const addproject = document.getElementById('add-project-form');
+    const papertable = document.getElementById('papertable');
+    const projecttable = document.getElementById('projecttable');
     
 
    
@@ -74,6 +76,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
     }
+    function getPaperType(type){
+        switch(type){
+            case 1:
+                return 'full paper';
+            case 2:
+                return 'short paper';
+            case 3:
+                return 'poster paper';
+            case 4:
+                return 'demo paper';
+        }
+    }
+    function getPaperLevel(level){
+        switch(level){
+            case 1:
+                return 'CCF-A';
+            case 2:
+                return 'CCF-B';
+            case 3:
+                return 'CCF-C';
+            case 4:
+                return '中文CCF-A';
+            case 5:
+                return '中文CCF-B';
+            case 6:
+                return '无级别';
+        }
+    }
     function transforproject(project){
         switch (project) {
             case 1:
@@ -92,40 +122,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     }
 
-    function fetchTeachersintable(){
-        fetch('/get_teachers')
-        .then(response => response.json())  
-        .then(data => {
-            teachertable.innerHTML = '';
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<th>编号</th><th>姓名</th><th>性别</th><th>职称</th>`;
-            teachertable.appendChild(tr);
-            data.forEach(teacher => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${teacher[0]}</td><td>${teacher[1]}</td><td>${teacher[2] === 1 ?'Male' : 'Female'}</td><td>${transfortitle(teacher[3]) }</td>`;
-                teachertable.appendChild(tr);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-    }
-
-    
-    function fetchCourseintable(){
-        fetch('/get_courses')
-        .then(response => response.json())
-        .then(data => {
-            coursetable.innerHTML = '';
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<th>编号</th><th>课程名</th><th>学时</th><th>类型</th>`;
-            coursetable.appendChild(tr);
-            data.forEach(course => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${course[0]}</td><td>${course[1]}</td><td>${course[2]}</td><td>${course[3]===1 ? '本科生课程' : '研究生课程'}</td>`;
-                coursetable.appendChild(tr);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-    }
     function fetchPaper(){
         fetch('/get_papers')
         .then(response => response.json())
@@ -136,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
             papertable.appendChild(tr);
             data.forEach(paper => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${paper[0]}</td><td>${paper[1]}</td><td>${paper[2]}</td><td>${paper[3]}</td><td>${paper[4]}</td><td>${paper[5]}</td>`;
+                tr.innerHTML = `<td>${paper[0]}</td><td>${paper[1]}</td><td>${paper[2]}</td><td>${paper[3]}</td><td>${getPaperType(paper[4])}</td><td>${getPaperLevel(paper[5])}</td>`;
                 papertable.appendChild(tr);
             });
         })
@@ -149,14 +145,16 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             projecttable.innerHTML = '';
             const tr = document.createElement('tr');
-            tr.innerHTML = `<th>项目编号</th><th>项目名称</th>
-                            <th>项目类型</th><th>开始日期</th><th>结束日期</th><th>项目经费</th>`;
+            tr.innerHTML = `<th>项目编号</th><th>项目名称</th><th>项目源</th>
+                            <th>项目类型</th><th>项目经费</th><th>开始日期</th><th>结束日期</th>`;
             projecttable.appendChild(tr);
             data.forEach(project => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${project[0]}</td><td>${project[1]}</td>
-                                <td>${transforproject(project[2])}</td>
-                                <td>${project[3]}</td><td>${project[4]}</td><td>${project[5]}</td>`;
+                                <td>${project[2]}</td>
+                                <td>${transforproject(project[3])}</td>
+                                <td>${project[4]}</td><td>${project[5]}</td>
+                                <td>${project[6]}</td>`;
                 projecttable.appendChild(tr);
             });
         })

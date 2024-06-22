@@ -1,9 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('add-teacher-form');/*add-course-form*/
     const form2 = document.getElementById('add-course-form');
-    const addpaper = document.getElementById('add-paper-form');
-    const deletepaper = document.getElementById('delete-paper-form');
-    const deleteproject = document.getElementById('delete-project-form');
+    
     const teachersList = document.getElementById('teachers-list');
     const coursesList = document.getElementById('courses-list');
     const teachertable = document.getElementById('teacher-table');
@@ -46,41 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
     });
    
-    deletepaper.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(deletepaper);
-
-        fetch('/delete_papers', {
-            method: 'POST',
-            body: formData
-        })
-
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            fetchPaper();
-        })
-        .catch(error => console.error('Error:', error));
-
-    });
-
-    deleteproject.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const formData = new FormData(deleteproject);
-
-        fetch('/delete_projects', {
-            method: 'POST',
-            body: formData
-        })
-
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            fetchProject();
-        })
-        .catch(error => console.error('Error:', error));
-
-    });
+    
     
 
 

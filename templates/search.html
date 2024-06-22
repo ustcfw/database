@@ -39,7 +39,7 @@
             <input type="number" id="Range2" name="Range2"  required>
             
             <button type="submit">查询</button>
-            <button type="button" onclick="exportData()">导出</button>
+            <button type="button" onclick='exportData()' >导出</button>
             <button type="button" onclick="print()">打印</button>
         </p>
         </form>
@@ -101,19 +101,52 @@
     </div>
     <script>
         function exportData() {
-            const { jsPDF } = window.jspdf;
+            // 引入jsPDF库
+            import jsPDF from 'jspdf';
+            import 'jspdf-autotable';
+
+            // 初始化jsPDF实例
             const doc = new jsPDF();
-                     
-            doc.addFont('SourceHanSans-Normal.ttf', 'SourceHanSans-Normal', 'normal');
-            doc.setFont('SourceHanSans-Normal');
-            const results = document.getElementById('results').innerText; 
-            const lines = doc.splitTextToSize(results, 60); // 180是每行文本的最大宽度，你可以根据需要调整
-            doc.text(lines, 10, 10); // 使用处理过的文本行
-            doc.setFontSize(12);
-            doc.save('exported-results.pdf');
+
+            // 添加论文部分
+            doc.setFontSize(14);
+            doc.text('论文', 14, 20);
+            doc.autoTable({
+            head: [['论文编号', '标题', '发表源', '发表日期', '类型', '级别', '排名', '是否通讯作者']],
+            body: data.papers.map(paper => [
+                paper[4], paper[5], paper[6], paper[7], getPaperType(paper[8]), getPaperLevel(paper[9]), paper[1], paper[2] === 1 ? '是' : '否'
+            ]),
+            startY: 25,
+            });
+
+            // 添加项目部分
+            const projectsStartY = doc.lastAutoTable.finalY + 10;
+            doc.text('项目', 14, projectsStartY);
+            doc.autoTable({
+            head: [['项目编号', '标题', '项目源', '项目类型', '总资金', '起始年份', '结束年份', '承担经费', '排名']],
+            body: data.projects.map(project => [
+                project[0], project[1], project[2], getProjectType(project[3]), project[4], project[5], project[6], project[9], project[8]
+            ]),
+            startY: projectsStartY + 5,
+            });
+
+            // 添加课程部分
+            const coursesStartY = doc.lastAutoTable.finalY + 10;
+            doc.text('课程', 14, coursesStartY);
+            doc.autoTable({
+            head: [['课程编号', '课程名', '课程总学时', '课程类型', '主讲学时', '学年', '学期']],
+            body: data.courses.map(course => [
+                course[0], course[1], course[2], course[3] === 1 ? '本科生课程' : '研究生课程', course[7], course[5], getCourseSemester(course[6])
+            ]),
+            startY: coursesStartY + 5,
+            });
+
+            // 保存PDF文件
+            doc.save('results.pdf');
         }
+        
         function print(){
-            const element = document.getElementById("layout");
+            const element = document.getElementById("results");
             const options = {
                 dpi: 192,  //dpi属性的值为192，表示图像的分辨率
                 scale: 1, //scale属性的值为2，表示图像的缩放比例。

@@ -176,11 +176,49 @@ document.addEventListener('DOMContentLoaded', function() {
                 return '秋季学期';
         }
     }
+    function getTeacherTitle(title){
+        switch (title) {
+            case 1:
+                return 'Postdoc';
+            case 2:
+                return 'Assistant';
+            case 3:
+                return 'Lecturer';
+            case 4:
+                return 'Associate Professor';
+            case 5:
+                return 'Special Professor';
+            case 6:
+                return 'Professor';
+            case 7:
+                return 'Research Assistant';
+            case 8:
+                return 'Special associate Researcher';
+            case 9:
+                return 'Associate Researcher';
+            case 10:
+                return 'Special Researcher';
+            case 11:
+                return 'Researcher';
+            default:
+                return '未知';
+        }
+    }
     
 
     function displayResults(data) {
         const resultsDiv = document.getElementById('results');
         resultsDiv.innerHTML = ''; // 清空之前的结果
+        // 展示教师信息
+        const teacherDiv = document.createElement('p');
+        teacherDiv.classList.add('section');
+        teacherDiv.innerHTML = `<h2>教师信息</h2>
+                                <p>教师编号: ${data.teacher[0]}     教师姓名: ${data.teacher[1]}
+                                </p>
+                                <p>教师职称: ${getTeacherTitle(data.teacher[3])}        教师性别:${data.teacher[2]===1 ? '男' : '女' }
+                                </p>`;
+        resultsDiv.appendChild(teacherDiv);
+        // 展示论文信息
 
         const infoDiv = document.createElement('h2');
         infoDiv.innerHTML = '论文';
@@ -336,5 +374,7 @@ document.addEventListener('DOMContentLoaded', function() {
           // 这里添加删除课程的代码
         }
       });
+
+      
         
 });

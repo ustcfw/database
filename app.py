@@ -291,6 +291,11 @@ def searchTeacher():
     range1 = int(request.form['Range1'])
     range2 = int(request.form['Range2'])
     cur = con.cursor()
+    # 查询教师基本信息
+    cur.execute("SELECT * FROM teachers WHERE id = %s", [teacherId])
+    teacher = cur.fetchone()
+
+
     # 查询发表的论文
     cur.execute("""
         SELECT pp.*, p.* FROM published_papers pp
@@ -317,7 +322,7 @@ def searchTeacher():
     """, (teacherId, range1, range2))
     courses = cur.fetchall()
     cur.close()
-    return jsonify({'papers': papers, 'projects': projects, 'courses': courses}), 200
+    return jsonify({'teacher': teacher, 'papers': papers, 'projects': projects, 'courses': courses}), 200
 
 @app.route('/updatePublishedPaper', methods=['POST'])
 def updatePublishedPaper():

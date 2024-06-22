@@ -11,9 +11,9 @@ CREATE TABLE teachers (
     gender INT NOT NULL,
     title INT NOT NULL
 );
+
+
 DROP TABLE IF EXISTS papers;
-ALTER TABLE papers DROP FOREIGN KEY papers_ibfk_1;
-ALTER TABLE papers DROP FOREIGN KEY published_papers_ibfk_1;
 CREATE TABLE papers (
     id INT PRIMARY KEY,
     title VARCHAR(256) NOT NULL,
@@ -32,9 +32,6 @@ CREATE TABLE published_papers (
     FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES teachers(id)
 );
-ALTER TABLE published_papers DROP FOREIGN KEY published_papers_ibfk_1;
-ALTER TABLE published_papers ADD CONSTRAINT published_papers_ibfk_1
-FOREIGN KEY (paper_id) REFERENCES papers(id) ON DELETE CASCADE;
 DROP TABLE IF EXISTS projects;
 CREATE TABLE projects (
     id INT PRIMARY KEY,
@@ -55,9 +52,6 @@ CREATE TABLE undertaken_projects (
     FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES teachers(id)
 );
-ALTER TABLE undertaken_projects DROP FOREIGN KEY undertaken_projects_ibfk_1;
-ALTER TABLE undertaken_projects ADD CONSTRAINT undertaken_projects_ibfk_1
-FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 DROP TABLE IF EXISTS courses;
 
 CREATE TABLE courses (
@@ -66,9 +60,6 @@ CREATE TABLE courses (
     hours INT NOT NULL,
     type INT NOT NULL
 );
-ALTER TABLE main_courses DROP FOREIGN KEY main_courses_ibfk_1;
-ALTER TABLE main_courses ADD CONSTRAINT main_courses_ibfk_1
-FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE;
 DROP TABLE IF EXISTS main_courses;
 -- 创建主讲课程表
 CREATE TABLE main_courses (
@@ -234,9 +225,6 @@ END$$
 
 DELIMITER ;
 
-CALL `InsertPublishedPaper`(1, 1, TRUE, 2);
-CALL `UpdatePublishedPaper`(1, 2, FALSE, 2);
-CALL `DeletePublishedPaper`(1, 2);
 
 DROP TRIGGER IF EXISTS update_total_funding;
 DROP TRIGGER IF EXISTS after_insert_undertaken_projects;
@@ -452,6 +440,11 @@ CALL `UpdateUndertakenProject`(2, 2, 1, 70000.0);
 CALL `AddMainCourse`(2, 2022, 1, 24, 1);
 CALL `UpdateMainCourse`(2, 2022, 2, 24, 1);
 CALL `DeleteMainCourse`(2, 2022, 2, 1);
+
+
+CALL `InsertPublishedPaper`(1, 1, TRUE, 2);
+CALL `UpdatePublishedPaper`(1, 2, FALSE, 2);
+CALL `DeletePublishedPaper`(1, 2);
 ALTER TABLE teachers AUTO_INCREMENT =5;
 INSERT INTO teachers (id, name, gender, title) VALUES ('1', 'Alice', 2, 6);
 INSERT INTO teachers (id, name, gender, title) VALUES ('2', 'Bob', 1, 4);
@@ -463,7 +456,7 @@ INSERT INTO papers (id,title, source, publication_year, type, level) VALUES (2,'
 INSERT INTO published_papers (ranking, is_corresponding_author, paper_id,teacher_id) VALUES (1, TRUE, 1, 1);
 INSERT INTO published_papers (ranking, is_corresponding_author, paper_id,teacher_id) VALUES (2, FALSE, 2, 2);
 INSERT INTO projects (id, title, source, type, total_funding, start_year, end_year) VALUES ('1', 'AI Project', 'National Science Foundation', 1, 50000.0, 2021, 2023);
-INSERT INTO undertaken_projects (ranking, funding, project_id,teacher_id) VALUES (1, 40000.0, '001', 1);
+INSERT INTO undertaken_projects (ranking, funding, project_id,teacher_id) VALUES (1, 50000.0, '001', 1);
 
 INSERT INTO courses (id, name, hours, type) VALUES ('001', 'Intro to CS', 48, 1);
 INSERT INTO courses (id, name, hours, type) VALUES ('002', 'Database Management', 36, 2);
