@@ -2,8 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('add-teacher-form');/*add-course-form*/
     const form2 = document.getElementById('add-course-form');
     
-    const teachersList = document.getElementById('teachers-list');
-    const coursesList = document.getElementById('courses-list');
     const teachertable = document.getElementById('teacher-table');
     const coursetable = document.getElementById('course-table');
     const papertable = document.getElementById('paper-table');
@@ -48,19 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
 
 
-    function fetchTeachers() {
-        fetch('/get_teachers')
-        .then(response => response.json())
-        .then(data => {
-            teachersList.innerHTML = '';
-            data.forEach(teacher => {
-                const li = document.createElement('li');
-                li.textContent = `Name: ${teacher[1]}, Gender: ${teacher[2] === 1 ? 'Male' : 'Female'}, Title: ${teacher[3]}`;
-                teachersList.appendChild(li);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-    }
     function transfortitle(title){
         switch (title) {
             case 1:
@@ -152,20 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => console.error('Error:', error));
     }
 
-    
-    function fetchCourses() {
-        fetch('/get_courses')
-        .then(response => response.json())
-        .then(data => {
-            coursesList.innerHTML = '';         
-            data.forEach(course => {
-                const li = document.createElement('li');
-                li.textContent = `ID: ${course[0]}, Name: ${course[1]  }, Hours: ${course[2]}, Type: ${course[3]===1 ? '本科生课程' : '研究生课程'}`;
-                coursesList.appendChild(li);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-    }
+   
     function fetchCourseintable(){
         fetch('/get_courses')
         .then(response => response.json())

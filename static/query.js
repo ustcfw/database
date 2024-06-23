@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchproject = document.getElementById('search-project-form');
     const searchcourse = document.getElementById('search-course-form');
     
-    const searchteacher = document.getElementById('search-teacher-form');
     const papertable = document.getElementById('paper-table');
     const projecttable = document.getElementById('project-table');
     const coursetable = document.getElementById('course-table');
@@ -164,12 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     );
     }
-    function addCancelButtonListener(button){
-        button.addEventListener('click',function(){
-            const tr = this.parentNode.parentNode;
-            tr.parentNode.removeChild(tr);
-        })
-    }
+   
     function addEditProjectButtonListener(button) {
         button.addEventListener('click', function() {
             const tr = this.parentNode.parentNode;

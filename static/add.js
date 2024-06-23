@@ -47,35 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
    
-    function transfortitle(title){
-        switch (title) {
-            case 1:
-                return 'Postdoc';
-            case 2:
-                return 'Assistant';
-            case 3:
-                return 'Lecturer';
-            case 4:
-                return 'Associate Professor';
-            case 5:
-                return 'Special Professor';
-            case 6:
-                return 'Professor';
-            case 7:
-                return 'Research Assistant';
-            case 8:
-                return 'Special associate Researcher';
-            case 9:
-                return 'Associate Researcher';
-            case 10:
-                return 'Special Researcher';
-            case 11:
-                return 'Researcher';
-            default:
-                return '未知';
-        }
-
-    }
+    
     function getPaperType(type){
         switch(type){
             case 1:

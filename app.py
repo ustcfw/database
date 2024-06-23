@@ -498,7 +498,7 @@ def deleteMainCourse():
     courseId = int(data['courseId'])
     teacherId = int(data['authorId'])
     cur = con.cursor()
-    cur.callproc("DeleteMainCourse", [teacherId,courseId ])
+    cur.callproc("DeleteMainCourse", [courseId ,teacherId])
     con.commit()
     cur.close()
     return jsonify({'message': 'Main course deleted successfully'}), 200
