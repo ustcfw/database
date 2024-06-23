@@ -226,7 +226,6 @@ END$$
 DELIMITER ;
 
 
-DROP TRIGGER IF EXISTS update_total_funding;
 DROP TRIGGER IF EXISTS after_insert_undertaken_projects;
 DROP TRIGGER IF EXISTS after_delete_undertaken_projects;
 DROP TRIGGER IF EXISTS after_update_undertaken_projects;
@@ -242,18 +241,11 @@ BEGIN
     WHERE id = NEW.project_id;
 END$$
 
--- 更新触发器，直接更新total_funding
-CREATE TRIGGER after_update_undertaken_projects AFTER UPDATE ON undertaken_projects
-FOR EACH ROW
-BEGIN
-    UPDATE projects
-    SET total_funding = (SELECT SUM(funding) FROM undertaken_projects WHERE project_id = NEW.project_id)
-    WHERE id = NEW.project_id;
-END$$
+
 
 DELIMITER ;
 
-DELIMITER $$
+
 
 DELIMITER $$
 
@@ -271,7 +263,6 @@ END$$
 
 DELIMITER ;
 
-DELIMITER ;
 
 
 DROP PROCEDURE IF EXISTS RegisterTeacherProject;
@@ -381,20 +372,7 @@ END;
 
 
 DROP TRIGGER IF EXISTS trg_maincourse_update;
--- UPDATE 触发器
-CREATE TRIGGER trg_maincourse_update
-AFTER UPDATE ON main_courses
-FOR EACH ROW
-BEGIN
-    UPDATE courses c
-    JOIN (
-        SELECT course_id, year, semester, SUM(hours) AS total_hours
-        FROM main_courses
-        WHERE course_id = NEW.course_id AND year = NEW.year AND semester = NEW.semester
-        GROUP BY course_id, year, semester
-    ) mc ON c.id = mc.course_id
-    SET c.hours = mc.total_hours;
-END;
+
 
 -- DELETE 触发器
 CREATE TRIGGER trg_maincourse_delete
@@ -471,19 +449,6 @@ BEGIN
 END$$
 DELIMITER ;
 
-CALL `DeletePaper`(3);
-CALL `RegisterTeacherProject`(1, 2, 1, 50000.0);
-CALL `DeleteUndertakenProject`(1, 2);
-CALL `UpdateUndertakenProject`(2, 2, 1, 70000.0);
-
-CALL `AddMainCourse`(2, 2022, 1, 24, 1);
-CALL `UpdateMainCourse`(2, 2022, 2, 24, 1);
-CALL `DeleteMainCourse`(2, 2022, 2, 1);
-
-
-CALL `InsertPublishedPaper`(1, 1, TRUE, 2);
-CALL `UpdatePublishedPaper`(1, 2, FALSE, 2);
-CALL `DeletePublishedPaper`(1, 2);
 ALTER TABLE teachers AUTO_INCREMENT =5;
 INSERT INTO teachers (id, name, gender, title) VALUES ('1', 'Alice', 2, 6);
 INSERT INTO teachers (id, name, gender, title) VALUES ('2', 'Bob', 1, 4);
